@@ -18,12 +18,12 @@ const Phone = ({ imgSrc, className, dark = false, ...props }: PhoneProps) => {
       )}
       {...props}
     >
-      {/* User image */}
+      
       <div className="absolute inset-0">
         <img className="object-cover w-full h-full" src={imgSrc} alt="image" />
       </div>
 
-      {/* Phone frame */}
+   
       <img
         className="pointer-events-none select-none absolute inset-0 w-full h-full z-20"
         src={
@@ -33,6 +33,11 @@ const Phone = ({ imgSrc, className, dark = false, ...props }: PhoneProps) => {
         }
         alt="phone image"
       />
+
+      <div className="absolute -z-10 inset-0 ">
+        
+      <img className="object-cover min-w-full min-h-full" src={imgSrc} alt="overlaying pgone image" />
+      </div>
     </div>
   );
 };

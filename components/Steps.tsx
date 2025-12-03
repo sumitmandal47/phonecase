@@ -58,8 +58,7 @@ const Steps = () => {
                     src={imgPath}
                     className={cn(
                       "flex h-20 w-20 object-contain items-center justify-center",
-                      {
-                        "border-none": isCompleted,
+                      {"border-none": isCompleted,
                         "border-zinc-700": isCurrent,
                       }
                     )}

@@ -1,33 +1,39 @@
 
-// interface PageProps {
-//   searchParams: {
-//     [key: string]: string | string[] | undefined;
-//   };
-// }
+import { db } from "@/db";
+import { notFound } from "next/navigation";
+import DesignConfigurator from "./DesignConfigurator";
 
-// const Page = async ({ searchParams }: PageProps) => {
-
-//   const { id } = searchParams|| {};
-
-//   return (
-//     <p>{ id}</p>
-//   );
-// };
-
-// export default Page;
 
 interface PageProps {
-  searchParams?: {
+  searchParams: Promise<{
     [key: string]: string | string[] | undefined;
-  };
+  }>;
 }
 
 const Page = async ({ searchParams }: PageProps) => {
-  const id = Array.isArray(searchParams?.id)
-    ? searchParams?.id[0]
-    : searchParams?.id;
+  const params = await searchParams; // IMPORTANT
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
-  return <p>{id}</p>;
+  if (!id || typeof id !== "string") {
+    return notFound()
+  }
+
+  const configuration = await db.configuration.findUnique({
+    where:{id}
+  })
+
+  if (!configuration) {
+    return notFound()
+  }
+  const {imageUrl,width,height}= configuration
+  return (
+    
+    <DesignConfigurator
+      configId={configuration.id}
+      imageDimensions={{ width, height }}
+      imageUrl={imageUrl}
+    />
+  ) 
 };
 
 export default Page;
