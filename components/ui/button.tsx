@@ -38,23 +38,36 @@ const buttonVariants = cva(
 
 function Button({
   className,
+  isLoading,
+  loadingText,
   variant,
+  children,
   size,
   asChild = false,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
+    asChild?: boolean;
+    isLoading?: boolean;
+    loadingText?: string;
   }) {
-  const Comp = asChild ? Slot : "button"
+  const Comp = asChild ? Slot : "button";
 
   return (
     <Comp
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
-    />
-  )
+    >
+      {isLoading && loadingText ? loadingText : children}
+      {isLoading ? <span className="ml-1.5 flex items-center gap-1  ">
+        <span className="animate-flashing w-1 h-1 bg-white rounded-full inline-block "/>
+        <span className="animate-flashing w-1 h-1 bg-white rounded-full inline-block delay-100 "/>
+        <span className="animate-flashing w-1 h-1 bg-white rounded-full inline-block  delay-200  "/>
+      
+      </span> : null }
+    </Comp>
+  );
 }
 
 export { Button, buttonVariants }

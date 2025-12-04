@@ -67,11 +67,11 @@ const Navbar = async() => {
                   href="/configure/upload/"
                   className={buttonVariants({
                     size: "sm",
-                    className: "hidden sm:flex items-center gap-1",
+                    className: "hidden sm:flex items-center gap-1 cursor-pointer ",
                   })}
                 >
                   Create case
-                  <ArrowRight className="ml-1.5 h-5 w-5 " />
+                  <ArrowRight className="ml-1 h-5 w-5 " />
                 </Link>
               </>
             )}

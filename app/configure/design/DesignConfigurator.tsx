@@ -379,8 +379,8 @@ const DesignConfigurator = ({
                 )}
               </p>
               <Button
-                // isLoading={isPending}
-                // disabled={isPending}
+                isLoading={isPending}
+                disabled={isPending}
                 onClick={() =>
                   saveConfig({
                     configId,
@@ -391,7 +391,7 @@ const DesignConfigurator = ({
                   })
                 }
                
-                className="  "
+                className="w-full "
               >
                 Continue
                 <ArrowRight className="h-4 w-4 ml-1.5  inline" />

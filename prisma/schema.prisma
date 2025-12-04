@@ -1,21 +1,18 @@
-
-
-
 generator client {
-  provider = "prisma-client-js"
-  engineType = "binary"
+  provider   = "prisma-client-js"
+ 
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
 
-   url      = env("DATABASE_URL")
-  
+  url = env("DATABASE_URL")
 }
+
 enum OrderStatus {
-fullFilled
-shipped
-awaiting_shipment
+  fullFilled
+  shipped
+  awaiting_shipment
 }
 
 enum PhoneModel {
@@ -44,67 +41,67 @@ enum CaseColor {
 }
 
 model Configuration {
-  id             String @id @default(cuid())
-  width          Int
-  height         Int
-  imageUrl       String
-  color          CaseColor?
-  model          PhoneModel?
-  material       CaseMaterial?
-  finish         CaseFinish?
+  id              String        @id @default(cuid())
+  width           Int
+  height          Int
+  imageUrl        String
+  color           CaseColor?
+  model           PhoneModel?
+  material        CaseMaterial?
+  finish          CaseFinish?
   croppedImageUrl String?
+  Order           Order[]
 }
 
+model User {
+  id    String  @id @default(cuid())
+  email String  @unique
+  Order Order[]
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
-// model User {
-//   id    String  @id @default(cuid())
-//   email String
-//   Order Order[]
+model Order {
+  
+  id              String        @id @default(cuid())
+  configurationId String
+  configuration   Configuration @relation(fields: [configurationId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
+  userId          String
+  amount          Float
+  isPaid          Boolean       @default(false)
+  status          OrderStatus   @default(awaiting_shipment)
 
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-// }
+  shippingAddress   ShippingAddress? @relation(fields: [shippingAddressId], references: [id])
+  shippingAddressId String?
+  billingAddress    BillingAddress?  @relation(fields: [billingAddressId], references: [id])
+  billingAddressId  String?
 
-// model Order {
-//   id              String        @id @default(cuid())
-//   configurationId String
-//   configuration   Configuration @relation(fields: [configurationId], references: [id])
-//   user            User          @relation(fields: [userId], references: [id])
-//   userId          String
-//   amount          Float
-//   isPaid          Boolean       @default(false)
-//   status          OrderStatus   @default(awaiting_shipment)
+  createdAt DateTime @default(now())
+  updated   DateTime @updatedAt
+}
 
-//   shippingAddress   ShippingAddress? @relation(fields: [shippingAddressId], references: [id])
-//   shippingAddressId String?
-//   billingAddress    BillingAddress?  @relation(fields: [billingAddressId], references: [id])
-//   billingAddressId  String?
+model ShippingAddress {
+  id          String  @id @default(cuid())
+  name        String
+  street      String
+  city        String
+  postalCode  String
+  country     String
+  state       String?
+  phoneNumber String?
+  orders      Order[]
+}
 
-//   createdAt DateTime @default(now())
-//   updated   DateTime @updatedAt
-// }
-
-// model ShippingAddress {
-//   id          String  @id @default(cuid())
-//   name        String
-//   street      String
-//   city        String
-//   postalCode  String
-//   country     String
-//   state       String?
-//   phoneNumber String?
-//   orders      Order[]
-// }
-
-// model BillingAddress {
-//   id          String  @id @default(cuid())
-//   name        String
-//   street      String
-//   city        String
-//   postalCode  String
-//   country     String
-//   state       String?
-//   phoneNumber String?
-//   orders      Order[]
-// }
+model BillingAddress {
+  id          String  @id @default(cuid())
+  name        String
+  street      String
+  city        String
+  postalCode  String
+  country     String
+  state       String?
+  phoneNumber String?
+  orders      Order[]
+}
