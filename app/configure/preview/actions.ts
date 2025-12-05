@@ -1,15 +1,19 @@
 
 
-"use server"
+"use server";
 
 import { BASE_PRICE, PRODUCTS_PRICES } from "@/config/products";
 import { db } from "@/db";
 import { stripe } from "@/lib/stripe";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { Order } from "@prisma/client";
+import { redirect } from "next/navigation";
 
-export const createCheckoutSession = async ({ configId }: { configId: string }) => {
-
+export const createCheckoutSession = async ({
+  configId,
+}: {
+  configId: string;
+}) => {
   const configuration = await db.configuration.findUnique({
     where: { id: configId },
   });
@@ -21,8 +25,9 @@ export const createCheckoutSession = async ({ configId }: { configId: string }) 
   const { getUser } = getKindeServerSession();
   const authUser = await getUser();
 
+  // ⭐ ADDED: If user not logged in → redirect instead of error
   if (!authUser) {
-    throw new Error("You need to be logged in");
+    redirect(`/api/auth/login?returnTo=/configure/preview?id=${configId}`);
   }
 
   let user = await db.user.findUnique({
@@ -41,7 +46,8 @@ export const createCheckoutSession = async ({ configId }: { configId: string }) 
 
   let price = BASE_PRICE;
   if (finish === "textured") price += PRODUCTS_PRICES.finish.textured;
-  if (material === "polycarbonate") price += PRODUCTS_PRICES.material.polycarbonate;
+  if (material === "polycarbonate")
+    price += PRODUCTS_PRICES.material.polycarbonate;
 
   let order: Order | undefined = undefined;
 
@@ -58,7 +64,7 @@ export const createCheckoutSession = async ({ configId }: { configId: string }) 
     order = await db.order.create({
       data: {
         amount: price / 100,
-        userId: user.id, 
+        userId: user.id,
         configurationId: configuration.id,
       },
     });
@@ -73,20 +79,18 @@ export const createCheckoutSession = async ({ configId }: { configId: string }) 
     },
   });
 
- 
   const stripeSession = await stripe.checkout.sessions.create({
     success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you?orderId=${order.id}`,
     cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/configure/preview?id=${configuration.id}`,
-    payment_method_types: ["card" ],
+    payment_method_types: ["card"],
     mode: "payment",
-    shipping_address_collection: { allowed_countries: ["DE", "US","IN"] },
+    shipping_address_collection: { allowed_countries: ["DE", "US", "IN"] },
     metadata: {
       userId: user.id,
       orderId: order.id,
     },
     line_items: [{ price: product.default_price as string, quantity: 1 }],
   });
-
 
   return { url: stripeSession.url };
 };

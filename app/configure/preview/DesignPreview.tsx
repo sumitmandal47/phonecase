@@ -19,7 +19,7 @@ const DesignPreview = ({ configuration }: { configuration: Configuration }) => {
   const router= useRouter()
  
   const { id } = configuration
-  const user = useKindeBrowserClient()
+const {user} = useKindeBrowserClient()
    const [showConfetti, setShowConfetti] = useState<boolean>(false);
 
   const [isLoginModelOpen, setIsLoginModelOpen]=useState<boolean>(false)
@@ -98,7 +98,7 @@ const DesignPreview = ({ configuration }: { configuration: Configuration }) => {
           <div className="grid grid-cols-1 gap-y-8 border-b border-gray-200 py-8 sm:grid-cols-2 sm:gap-x-6 sm:py-6 md:py-10">
             <div>
               <p className="font-medium text-zinc-950">Highlights</p>
-              <ol className="mt-3 justify-center  text-zinc-700 list-dics list-inside">
+              <ol className="mt-3  text-zinc-700 list-dics list-inside">
                 <li> Wireless charging compatible</li>
                 <li>TUP shock absorption</li>
                 <li>Packaging made from recycled materials</li>
@@ -159,5 +159,3 @@ const DesignPreview = ({ configuration }: { configuration: Configuration }) => {
 }
 
 export default DesignPreview
-
-// disabled={true} isLoading={true} loadingText="loading"

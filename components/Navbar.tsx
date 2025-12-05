@@ -2,7 +2,7 @@ import Link from "next/link"
 import MaxWidthWrapper from "./MaxWidthWrapper"
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server"
 
-import { Button, buttonVariants } from "./ui/button" 
+import {  buttonVariants } from "./ui/button" 
 
 import { ArrowRight } from "lucide-react"
 const Navbar = async() => {
