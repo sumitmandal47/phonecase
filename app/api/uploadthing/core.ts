@@ -79,18 +79,17 @@ export const ourFileRouter = {
     .onUploadComplete(async ({ metadata, file }) => {
       const { configId } = metadata.input;
 
-      // fetch file from UploadThing's temp URL
       const response = await fetch(file.ufsUrl);
       const arrayBuffer = await response.arrayBuffer();
 
-      // sharp requires Node.js Buffer
+     
       const sharpBuffer = Buffer.from(arrayBuffer);
 
       const imgMetadata = await sharp(sharpBuffer).metadata();
       const { width, height } = imgMetadata;
 
       if (!configId) {
-        // Create new configuration
+      
         const configuration = await db.configuration.create({
           data: {
             imageUrl: file.ufsUrl,
@@ -101,7 +100,7 @@ export const ourFileRouter = {
 
         return { configId: configuration.id };
       } else {
-        // Update existing configuration
+       
         const updatedConfig = await db.configuration.update({
           where: { id: configId },
           data: {

@@ -1,31 +1,4 @@
-// "use server";
 
-// import { db } from "@/db";
-// import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-
-// export const getAuthStatus = async () => {
-//   const { getUser } = getKindeServerSession();
-//   const user = await getUser();
-
-//   if (!user?.id || !user.email) {
-//     throw new Error("Invalid user data");
-//   }
-
-//   const existingUser = await db.user.findFirst({
-//     where: { id: user.id },
-//   });
-
-//   if (!existingUser) {
-//     await db.user.create({
-//       data: {
-//         id: user.id,
-//         email: user.email,
-//       },
-//     });
-//   }
-
-//   return { success: true };
-// };
 
 "use server";
 
@@ -33,25 +6,32 @@ import { db } from "@/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 
 export const getAuthStatus = async () => {
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
+  try {
+    const { getUser } = getKindeServerSession();
+    const user = await getUser();
 
-  if (!user?.id || !user.email) {
-    throw new Error("Invalid user data");
-  }
+    if (!user) {
+      return { success: false, message: "User not authenticated" };
+    }
 
-  const existingUser = await db.user.findFirst({
-    where: { id: user.id },
-  });
-
-  if (!existingUser) {
-    await db.user.create({
-      data: {
-        id: user.id,
-        email: user.email,
-      },
+    // Check by email (correct way)
+    const existingUser = await db.user.findUnique({
+      where: { email: user.email! },
     });
-  }
 
-  return { success: true };
+    // Create only if not exists
+    if (!existingUser) {
+      await db.user.create({
+        data: {
+          id: user.id,
+          email: user.email!,
+        },
+      });
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("AUTH ERROR:", error);
+    return { success: false, message: "Auth error" };
+  }
 };
