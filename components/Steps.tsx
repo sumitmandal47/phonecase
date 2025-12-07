@@ -1,7 +1,10 @@
+
+
 "use client";
 
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const STEPS = [
   {
@@ -23,14 +26,22 @@ const STEPS = [
 
 const Steps = () => {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  // Make hydration safe
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <ol className="rounded-md bg-white lg:flex lg:rounded-none lg:border-l lg:border-r lg:border-gray-200">
       {STEPS.map((step, i) => {
-        const isCurrent = pathname.endsWith(step.url);
-        const isCompleted = STEPS.slice(i + 1).some((step) =>
-          pathname.endsWith(step.url)
-        );
+        // BEFORE MOUNT — avoid mismatch
+        const isCurrent = mounted && pathname.endsWith(step.url);
+
+        const isCompleted =
+          mounted && STEPS.slice(i + 1).some((s) => pathname.endsWith(s.url));
+
         const imgPath = `/snake-${i + 1}.png`;
 
         return (
@@ -58,7 +69,8 @@ const Steps = () => {
                     src={imgPath}
                     className={cn(
                       "flex h-20 w-20 object-contain items-center justify-center",
-                      {"border-none": isCompleted,
+                      {
+                        "border-none": isCompleted,
                         "border-zinc-700": isCurrent,
                       }
                     )}
