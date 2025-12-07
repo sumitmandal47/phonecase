@@ -387,10 +387,9 @@ const DesignConfigurator = ({
                     color: options.color.value,
                     finish: options.finish.value,
                     material: options.material.value,
-                    model:options.model.value,
+                    model: options.model.value,
                   })
                 }
-               
                 className="w-full "
               >
                 Continue

@@ -1,17 +1,116 @@
+
+
+// import { db } from "@/db";
+// import { stripe } from "@/lib/stripe";
+// import { headers } from "next/headers";
+// import { NextResponse } from "next/server";
+// import Stripe from "stripe";
+
+// // Extend the Stripe session type to include shipping_details
+// type SessionWithShipping = Stripe.Checkout.Session & {
+//   shipping_details?: {
+//     address?: Stripe.Address | null;
+//     name?: string | null;
+//   } | null;
+// };
+
+// export async function POST(req: Request) {
+//   try {
+//     const body = await req.text();
+//     const signature = (await headers()).get("stripe-signature");
+
+//     if (!signature) {
+//       return new Response("Invalid signature", { status: 400 });
+//     }
+
+//     const event = stripe.webhooks.constructEvent(
+//       body,
+//       signature,
+//       process.env.STRIPE_WEBHOOK_SECRET!
+//     );
+
+//     if (event.type === "checkout.session.completed") {
+//       const session = event.data.object as SessionWithShipping;
+
+//       if (!session.customer_details?.email) {
+//         throw new Error("Missing user email");
+//       }
+
+//       const { userId, orderId } = session.metadata || {};
+//       if (!userId || !orderId) {
+//         throw new Error("Invalid request metadata");
+//       }
+
+//       const billingAddress = session.customer_details?.address;
+//       if (!billingAddress) throw new Error("Billing address missing");
+
+//       const shippingAddress = session.shipping_details?.address;
+//       if (!shippingAddress) {
+//         console.warn(
+//           "⚠️ Shipping address missing (digital product or user skipped shipping)"
+//         );
+//       }
+
+//       await db.order.update({
+//         where: { id: orderId },
+//         data: {
+//           isPaid: true,
+
+//           billingAddress: {
+//             create: {
+//               name: session.customer_details?.name ?? "",
+//               city: billingAddress.city ?? "",
+//               country: billingAddress.country ?? "",
+//               postalCode: billingAddress.postal_code ?? "",
+//               street: billingAddress.line1 ?? "",
+//               state: billingAddress.state ?? "",
+//             },
+//           },
+
+//           shippingAddress: shippingAddress
+//             ? {
+//                 create: {
+//                   name: session.customer_details?.name ?? "",
+//                   city: shippingAddress.city ?? "",
+//                   country: shippingAddress.country ?? "",
+//                   postalCode: shippingAddress.postal_code ?? "",
+//                   street: shippingAddress.line1 ?? "",
+//                   state: shippingAddress.state ?? "",
+//                 },
+//               }
+//             : undefined,
+//         },
+//       });
+//     }
+
+//     return NextResponse.json({ result: event, ok: true });
+//   } catch (err) {
+//     console.error("❌ WEBHOOK ERROR:", err);
+//     return NextResponse.json(
+//       { message: "Something went wrong", ok: false },
+//       { status: 500 }
+//     );
+//   }
+// }
+
 import { db } from "@/db";
 import { stripe } from "@/lib/stripe";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { Resend } from "resend";
-import OrderReceivedEmail from "@/components/emails/OrderReceivedEmail";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Extend Checkout Session type (Stripe typings missing shipping_details)
+type SessionWithShipping = Stripe.Checkout.Session & {
+  shipping_details?: {
+    address?: Stripe.Address | null;
+    name?: string | null;
+  } | null;
+};
 
 export async function POST(req: Request) {
   try {
     const body = await req.text();
-    const signature = headers().get("stripe-signature");
+    const signature = (await headers()).get("stripe-signature");
 
     if (!signature) {
       return new Response("Invalid signature", { status: 400 });
@@ -24,80 +123,59 @@ export async function POST(req: Request) {
     );
 
     if (event.type === "checkout.session.completed") {
-      if (!event.data.object.customer_details?.email) {
+      const session = event.data.object as SessionWithShipping;
+
+      if (!session.customer_details?.email) {
         throw new Error("Missing user email");
       }
 
-      const session = event.data.object as Stripe.Checkout.Session;
-
-      const { userId, orderId } = session.metadata || {
-        userId: null,
-        orderId: null,
-      };
-
+      const { userId, orderId } = session.metadata || {};
       if (!userId || !orderId) {
         throw new Error("Invalid request metadata");
       }
 
-      const billingAddress = session.customer_details!.address;
-      const shippingAddress = session.shipping_details!.address;
+      // Billing Address
+      const billing = session.customer_details.address;
+      if (!billing) throw new Error("Missing billing address");
 
-      const updatedOrder = await db.order.update({
-        where: {
-          id: orderId,
-        },
+      // Shipping Address (can be null)
+      const shipping = session.shipping_details?.address;
+
+      await db.order.update({
+        where: { id: orderId },
         data: {
           isPaid: true,
-          shippingAddress: {
-            create: {
-              name: session.customer_details!.name!,
-              city: shippingAddress!.city!,
-              country: shippingAddress!.country!,
-              postalCode: shippingAddress!.postal_code!,
-              street: shippingAddress!.line1!,
-              state: shippingAddress!.state,
-            },
-          },
+
           billingAddress: {
             create: {
-              name: session.customer_details!.name!,
-              city: billingAddress!.city!,
-              country: billingAddress!.country!,
-              postalCode: billingAddress!.postal_code!,
-              street: billingAddress!.line1!,
-              state: billingAddress!.state,
+              name: session.customer_details.name ?? "",
+              city: billing.city ?? "",
+              country: billing.country ?? "",
+              postalCode: billing.postal_code ?? "",
+              street: billing.line1 ?? "",
+              state: billing.state ?? "",
             },
           },
-        },
-      });
 
-      await resend.emails.send({
-        from: "CaseCobra <hello@joshtriedcoding.com>",
-        to: [event.data.object.customer_details.email],
-        subject: "Thanks for your order!",
-        react: OrderReceivedEmail({
-          orderId,
-          orderDate: updatedOrder.createdAt.toLocaleDateString(),
-          
-          shippingAddress: {
-            name: session.customer_details!.name!,
-            city: shippingAddress!.city!,
-            country: shippingAddress!.country!,
-            postalCode: shippingAddress!.postal_code!,
-            street: shippingAddress!.line1!,
-            state: shippingAddress!.state,
-          },
-        }),
+          shippingAddress: shipping
+            ? {
+                create: {
+                  name: session.customer_details.name ?? "",
+                  city: shipping.city ?? "",
+                  country: shipping.country ?? "",
+                  postalCode: shipping.postal_code ?? "",
+                  street: shipping.line1 ?? "",
+                  state: shipping.state ?? "",
+                },
+              }
+            : undefined,
+        },
       });
     }
 
-    return NextResponse.json({ result: event, ok: true });
+    return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error(err);
-
-    return NextResponse.json(
-      { message: "Something went wrong", ok: false },
-      { status: 500 }
-    );
+    console.error("❌ WEBHOOK ERROR:", err);
+    return NextResponse.json({ ok: false }, { status: 500 });
   }
 }

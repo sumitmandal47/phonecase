@@ -1,5 +1,3 @@
-
-
 "use server";
 
 import { BASE_PRICE, PRODUCTS_PRICES } from "@/config/products";
@@ -26,12 +24,12 @@ export const createCheckoutSession = async ({
   const authUser = await getUser();
 
   // ⭐ ADDED: If user not logged in → redirect instead of error
-  if (!authUser) {
+  if (!authUser || !authUser.email) {
     redirect(`/api/auth/login?returnTo=/configure/preview?id=${configId}`);
   }
 
   let user = await db.user.findUnique({
-    where: { email: authUser.email },
+    where: { email : authUser.email },
   });
 
   if (!user) {
@@ -81,11 +79,12 @@ export const createCheckoutSession = async ({
 
   const stripeSession = await stripe.checkout.sessions.create({
     success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you?orderId=${order.id}`,
-    
+
     cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/configure/preview?id=${configuration.id}`,
 
     payment_method_types: ["card"],
     mode: "payment",
+
     shipping_address_collection: { allowed_countries: ["DE", "US", "IN"] },
     metadata: {
       userId: user.id,
@@ -96,5 +95,3 @@ export const createCheckoutSession = async ({
 
   return { url: stripeSession.url };
 };
-
-
