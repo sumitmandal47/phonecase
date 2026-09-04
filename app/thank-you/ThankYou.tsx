@@ -13,10 +13,13 @@ const ThankYou = () => {
   const orderId = searchParams.get("orderId") || "";
 
   const { data } = useQuery({
-    queryKey: ["get-payment-status"],
+    queryKey: ["get-payment-status", orderId],
     queryFn: async () => await getPaymentStatus({ orderId }),
     retry: true,
     retryDelay: 500,
+    refetchInterval: (query) => {
+      return query.state.data ? false : 1000;
+    },
   });
 
   if (data === undefined) {
