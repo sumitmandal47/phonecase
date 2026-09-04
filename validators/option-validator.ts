@@ -4,17 +4,23 @@ export const COLORS = [
   {
     label: "Black",
     value: "black",
-    tw: "gray-950"
+    tw: "zinc-900",
+    bg: "bg-zinc-900",
+    border: "border-zinc-900",
   },
   {
     label: "Blue",
     value: "blue",
     tw: "blue-950",
+    bg: "bg-blue-950",
+    border: "border-blue-950",
   },
   {
     label: "Rose",
     value: "rose",
-     tw: "rose-950"
+    tw: "rose-950",
+    bg: "bg-rose-950",
+    border: "border-rose-950",
   },
 ] as const;
 

@@ -28,12 +28,22 @@ const PhonePreview = ({
   useEffect(() => {
     handleResize();
 
+    if (!ref.current) return;
+    const observer = new ResizeObserver(() => {
+      handleResize();
+    });
+
+    observer.observe(ref.current);
+
     window.addEventListener("resize", handleResize);
 
-    return () => window.removeEventListener("resize", handleResize);
-  },[ref.current]);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
-  let caseBackgroundColor = "bg-zinc-950";
+  let caseBackgroundColor = "bg-zinc-900";
   if (color === "blue") caseBackgroundColor = "bg-blue-950";
   if (color === "rose") caseBackgroundColor = "bg-rose-950";
 
@@ -49,12 +59,13 @@ const PhonePreview = ({
         }}
       >
         <img
-          width={renderedDimensions.width /(3000 / 637)}
+          width={renderedDimensions.width / (3000 / 637)}
           className={cn(
             "phone-skew relative z-20 rounded-t-[15px] rounded-b-[10px] md:rounded-t-[30px] md:rounded-b-[20px]",
             caseBackgroundColor
           )}
           src={croppedImageUrl}
+          alt="custom phone design"
         />
       </div>
 

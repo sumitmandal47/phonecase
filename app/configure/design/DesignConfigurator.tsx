@@ -148,12 +148,12 @@ const DesignConfigurator = ({
   });
 
   return (
-    <div className="relative mt-20 grid grid-cols-1 lg:grid-cols-3 mb-20 pb-20">
+    <div className="relative mt-6 sm:mt-10 lg:mt-20 grid grid-cols-1 lg:grid-cols-3 mb-20 pb-20 gap-8 lg:gap-0">
       <div
         ref={containerRef}
-        className="relative h-[37.5rem] overflow-hidden col-span-2 w-full max-w-4xl flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+        className="relative h-[28rem] sm:h-[37.5rem] overflow-hidden col-span-2 w-full max-w-4xl flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-6 sm:p-12 text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
       >
-        <div className="relative w-60 bg-opacity-50 pointer-events-none aspect-[896/1831]">
+        <div className="relative w-52 sm:w-60 bg-opacity-50 pointer-events-none aspect-[896/1831]">
           <AspectRatio
             ref={phoneCaseRef}
             ratio={896 / 1831}
@@ -170,7 +170,7 @@ const DesignConfigurator = ({
           <div
             className={cn(
               "absolute inset-0 left-[3px] top-px right-[3px] bottom-px rounded-[32px]",
-              `bg-${options.color.tw}`
+              options.color.bg
             )}
           />
         </div>
@@ -213,15 +213,15 @@ const DesignConfigurator = ({
         </Rnd>
       </div>
 
-      <div className="h-[37.5rem] w-full col-span-full lg:col-span-1 flex flex-col bg-white">
+      <div className="min-h-[30rem] lg:h-[37.5rem] w-full col-span-full lg:col-span-1 flex flex-col bg-white rounded-lg border lg:border-l-0 border-zinc-200 shadow-sm">
         <ScrollArea className="relative flex-1 overflow-auto">
           <div
             aria-hidden="true"
             className="absolute z-10 inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white pointer-events-none"
           />
 
-          <div className="px-8 pb-12 pt-8">
-            <h2 className="tracking-tight font-bold text-3xl">
+          <div className="px-6 sm:px-8 pb-12 pt-8">
+            <h2 className="tracking-tight font-bold text-2xl sm:text-3xl">
               Customize your case
             </h2>
             <div className="w-full h-px bg-zinc-200 my-6" />
@@ -244,13 +244,13 @@ const DesignConfigurator = ({
                         className={({ active, checked }) =>
                           cn(
                             "relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 active:ring-0 focus:ring-0 active:outline-none focus:outline-none border-2 border-transparent",
-                            { [`border-${color.tw}`]: active || checked }
+                            (active || checked) && color.border
                           )
                         }
                       >
                         <span
                           className={cn(
-                            `bg-${color.tw}`,
+                            color.bg,
                             "h-8 w-8 rounded-full border border-black border-opacity-10"
                           )}
                         />
@@ -273,14 +273,14 @@ const DesignConfigurator = ({
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
+                    <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-60 overflow-y-auto">
                       {MODELS.options.map((model) => (
                         <DropdownMenuItem
                           key={model.label}
                           className={cn(
-                            "flex text-sm gap-1 items-center p-1.5 cursor-default hover:bg-zinc-100",
+                            "flex text-sm gap-1 items-center p-1.5 cursor-pointer hover:bg-zinc-100",
                             {
-                              "bg-zinc-100":
+                              "bg-zinc-100 font-medium":
                                 model.label === options.model.label,
                             }
                           )}
@@ -323,8 +323,8 @@ const DesignConfigurator = ({
                             value={option}
                             className={({ active, checked }) =>
                               cn(
-                                "relative block cursor-pointer rounded-lg bg-white px-6 py-4 shadow-sm border-2 border-zinc-200 focus:outline-none ring-0 focus:ring-0 outline-none sm:flex sm:justify-between",
-                                { "border-primary": active || checked }
+                                "relative block cursor-pointer rounded-lg bg-white px-6 py-4 shadow-sm border-2 border-zinc-200 focus:outline-none ring-0 focus:ring-0 outline-none sm:flex sm:justify-between transition-all",
+                                { "border-primary ring-1 ring-primary": active || checked }
                               )
                             }
                           >
@@ -368,11 +368,10 @@ const DesignConfigurator = ({
         </ScrollArea>
 
         {/* Bottom Bar */}
-        <div className="w-full px-8 h-16 bg-white">
-          <div className="h-px w-full bg-zinc-200" />
+        <div className="w-full px-6 sm:px-8 py-4 bg-white border-t border-zinc-200">
           <div className="w-full h-full flex justify-end items-center">
-            <div className="w-full flex gap-6 items-center">
-              <p className="font-medium whitespace-nowrap">
+            <div className="w-full flex gap-4 sm:gap-6 items-center">
+              <p className="font-medium text-lg whitespace-nowrap">
                 {formatPrice(
                   (BASE_PRICE + options.finish.price + options.material.price) /
                     100
@@ -380,20 +379,21 @@ const DesignConfigurator = ({
               </p>
               <Button
                 isLoading={isPending}
+                loadingText="Saving..."
                 disabled={isPending}
                 onClick={() =>
                   saveConfig({
                     configId,
-                    color:options.color.value,
+                    color: options.color.value,
                     finish: options.finish.value,
                     material: options.material.value,
                     model: options.model.value,
                   })
                 }
-                className="w-full "
+                className="w-full"
               >
                 Continue
-                <ArrowRight className="h-4 w-4 ml-1.5  inline" />
+                <ArrowRight className="h-4 w-4 ml-1.5 inline" />
               </Button>
             </div>
           </div>

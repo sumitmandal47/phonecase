@@ -36,11 +36,11 @@ const Steps = () => {
   return (
     <ol className="rounded-md bg-white lg:flex lg:rounded-none lg:border-l lg:border-r lg:border-gray-200">
       {STEPS.map((step, i) => {
-        // BEFORE MOUNT — avoid mismatch
-        const isCurrent = mounted && pathname.endsWith(step.url);
+        const isCurrent = pathname.includes(step.url);
 
-        const isCompleted =
-          mounted && STEPS.slice(i + 1).some((s) => pathname.endsWith(s.url));
+        const isCompleted = STEPS.slice(i + 1).some((s) =>
+          pathname.includes(s.url)
+        );
 
         const imgPath = `/snake-${i + 1}.png`;
 
@@ -61,14 +61,15 @@ const Steps = () => {
               <span
                 className={cn(
                   i !== 0 ? "lg:pl-9" : "",
-                  "flex items-center px-6 py-4 text-sm font-medium"
+                  "flex items-center px-4 py-3 sm:px-6 sm:py-4 text-sm font-medium"
                 )}
               >
                 <span className="flex shrink-0">
                   <img
                     src={imgPath}
+                    alt={step.name}
                     className={cn(
-                      "flex h-20 w-20 object-contain items-center justify-center",
+                      "flex h-16 w-16 sm:h-20 sm:w-20 object-contain items-center justify-center",
                       {
                         "border-none": isCompleted,
                         "border-zinc-700": isCurrent,
@@ -77,7 +78,7 @@ const Steps = () => {
                   />
                 </span>
 
-                <span className="ml-4 h-full mt-0.5 flex min-w-0 flex-col justify-center">
+                <span className="ml-3 sm:ml-4 h-full mt-0.5 flex min-w-0 flex-col justify-center">
                   <span
                     className={cn("text-sm font-semibold text-zinc-700", {
                       "text-primary": isCompleted,
@@ -86,7 +87,7 @@ const Steps = () => {
                   >
                     {step.name}
                   </span>
-                  <span className="text-sm text-zinc-500">
+                  <span className="text-xs sm:text-sm text-zinc-500">
                     {step.description}
                   </span>
                 </span>
@@ -103,7 +104,7 @@ const Steps = () => {
                   >
                     <path
                       d="M0.5 0V31L10.5 41L0.5 51V82"
-                      stroke="currentcolor"
+                      stroke="currentColor"
                       vectorEffect="non-scaling-stroke"
                     />
                   </svg>

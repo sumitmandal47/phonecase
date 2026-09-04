@@ -5,19 +5,19 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server"
 import {  buttonVariants } from "./ui/button" 
 
 import { ArrowRight } from "lucide-react"
-const Navbar = async() => {
+const Navbar = async () => {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+  const isAdmin = user?.email === process.env.ADMIN_EMAIL;
 
-  const{getUser}=getKindeServerSession()
-  const user = await getUser()
-  const isAdmin=user?.email===process.env.ADMIN_EMAIL
   return (
-    <nav className="sticky z-100 h-14 inset-x-0 top-0 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all">
+    <nav className="sticky z-50 h-14 inset-x-0 top-0 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all">
       <MaxWidthWrapper>
-        <div className=" flex h-14 items-center justify-between border-b border-zinc-200">
-          <Link href="/" className="flex z-40 font-semibold ">
+        <div className="flex h-14 items-center justify-between">
+          <Link href="/" className="flex z-40 font-semibold text-lg">
             Phone<span className="text-green-600">case</span>
           </Link>
-          <div className="flex h-full items-center space-x-4 ">
+          <div className="flex h-full items-center space-x-2 sm:space-x-4">
             {user ? (
               <>
                 <Link
@@ -29,21 +29,21 @@ const Navbar = async() => {
 
                 {isAdmin ? (
                   <Link
-                    href="/api/auth/logout"
+                    href="/dashboard"
                     className={buttonVariants({ size: "sm", variant: "ghost" })}
                   >
                     Dashboard ✨
                   </Link>
                 ) : null}
                 <Link
-                  href="/configure/upload/"
+                  href="/configure/upload"
                   className={buttonVariants({
                     size: "sm",
-                    className: "hidden sm:flex items-center gap-1",
+                    className: "flex items-center gap-1",
                   })}
                 >
-                  Create case
-                  <ArrowRight className="ml-1.5 h-5 w-5 " />
+                  <span>Create case</span>
+                  <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </>
             ) : (
@@ -60,18 +60,17 @@ const Navbar = async() => {
                   className={buttonVariants({ size: "sm", variant: "ghost" })}
                 >
                   Login
-                  <ArrowRight className="ml-1.5 h-5 w-5 " />
                 </Link>
-                <div className="h-8 w-px bg-zinc-200 hidden sm:block "></div>
+                <div className="h-8 w-px bg-zinc-200 hidden sm:block" />
                 <Link
-                  href="/configure/upload/"
+                  href="/configure/upload"
                   className={buttonVariants({
                     size: "sm",
-                    className: "hidden sm:flex items-center gap-1 cursor-pointer ",
+                    className: "flex items-center gap-1 cursor-pointer",
                   })}
                 >
-                  Create case
-                  <ArrowRight className="ml-1 h-5 w-5 " />
+                  <span>Create case</span>
+                  <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </>
             )}
@@ -80,6 +79,6 @@ const Navbar = async() => {
       </MaxWidthWrapper>
     </nav>
   );
-}
+};
 
-export default Navbar
+export default Navbar;

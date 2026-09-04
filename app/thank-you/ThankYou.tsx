@@ -70,9 +70,9 @@ const ThankYou = () => {
               You made a great choice!
             </h4>
             <p className="mt-2 text-sm text-zinc-600">
-              We at CaseCobra believe that a phone case doesn't only need to
+              We at Phonecase believe that a phone case doesn't only need to
               look good, but also last you for the years to come. We offer a
-              5-year print guarantee: If you case isn't of the highest quality,
+              5-year print guarantee: If your case isn't of the highest quality,
               we'll replace it for free.
             </p>
           </div>
@@ -81,21 +81,27 @@ const ThankYou = () => {
         <div className="flex space-x-6 overflow-hidden mt-4 rounded-xl bg-gray-900/5 ring-1 ring-inset ring-gray-900/10 lg:rounded-2xl">
           <PhonePreview
             croppedImageUrl={configuration.croppedImageUrl!}
-            color={color!}
+            color={color ?? "black"}
           />
         </div>
 
         <div>
-          <div className="grid grid-cols-2 gap-x-6 py-10 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 sm:gap-x-6 py-10 text-sm">
             <div>
               <p className="font-medium text-gray-900">Shipping address</p>
               <div className="mt-2 text-zinc-700">
                 <address className="not-italic">
-                  <span className="block">{shippingAddress?.name}</span>
+                  <span className="block font-medium">{shippingAddress?.name}</span>
                   <span className="block">{shippingAddress?.street}</span>
                   <span className="block">
                     {shippingAddress?.postalCode} {shippingAddress?.city}
                   </span>
+                  {shippingAddress?.state ? (
+                    <span className="block">{shippingAddress.state}</span>
+                  ) : null}
+                  {shippingAddress?.country ? (
+                    <span className="block">{shippingAddress.country}</span>
+                  ) : null}
                 </address>
               </div>
             </div>
@@ -103,17 +109,23 @@ const ThankYou = () => {
               <p className="font-medium text-gray-900">Billing address</p>
               <div className="mt-2 text-zinc-700">
                 <address className="not-italic">
-                  <span className="block">{billingAddress?.name}</span>
+                  <span className="block font-medium">{billingAddress?.name}</span>
                   <span className="block">{billingAddress?.street}</span>
                   <span className="block">
                     {billingAddress?.postalCode} {billingAddress?.city}
                   </span>
+                  {billingAddress?.state ? (
+                    <span className="block">{billingAddress.state}</span>
+                  ) : null}
+                  {billingAddress?.country ? (
+                    <span className="block">{billingAddress.country}</span>
+                  ) : null}
                 </address>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-x-6 border-t border-zinc-200 py-10 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 sm:gap-x-6 border-t border-zinc-200 py-10 text-sm">
             <div>
               <p className="font-medium text-zinc-900">Payment status</p>
               <p className="mt-2 text-zinc-700">Paid</p>

@@ -41,11 +41,11 @@ const LoginModal = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-6 divide-x divide-gray-200">
-          <LoginLink className={buttonVariants({ variant: "outline" })}>
+        <div className="grid grid-cols-2 gap-4 mt-2">
+          <LoginLink className={buttonVariants({ variant: "outline", className: "w-full" })}>
             Login
           </LoginLink>
-          <RegisterLink className={buttonVariants({ variant: "default" })}>
+          <RegisterLink className={buttonVariants({ variant: "default", className: "w-full" })}>
             Sign up
           </RegisterLink>
         </div>

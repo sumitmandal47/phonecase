@@ -29,12 +29,13 @@ export const createCheckoutSession = async ({
   }
 
   let user = await db.user.findUnique({
-    where: { email : authUser.email },
+    where: { email: authUser.email },
   });
 
   if (!user) {
     user = await db.user.create({
       data: {
+        id: authUser.id,
         email: authUser.email,
       },
     });
