@@ -42,7 +42,7 @@ const Steps = () => {
           pathname.includes(s.url)
         );
 
-        const imgPath = `/snake-${i + 1}.png`;
+        const imgPath = `/Image-${i + 1}.png`;
 
         return (
           <li key={step.name} className="relative overflow-hidden lg:flex-1">
